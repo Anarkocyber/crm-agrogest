@@ -8,6 +8,7 @@ lista_clientes = [
     (2, "Maria", "11888888888", "maria@email.com", "Empresa Y", "98765432000100", "98765432100", "Rio de Janeiro", "RJ")
 ]
 
+
 # 🔹 ROTA PARA LISTAR CLIENTES
 @clientes.route('/clientes')
 def lista_clientes_view():
@@ -39,4 +40,43 @@ def novo_cliente():
         # redirecionar para lista
         return redirect(url_for('clientes.lista_clientes_view'))
 
-    return render_template('cadastrar_cliente.html')
+    return render_template('cadastrar.html')
+
+
+@clientes.route('/clientes/excluir/<int:id>')
+def excluir_cliente(id):
+    global lista_clientes
+
+    lista_clientes = [c for c in lista_clientes if c[0] != id]
+
+    return redirect(url_for('clientes.lista_clientes_view'))
+
+
+@clientes.route('/clientes/editar/<int:id>', methods=['GET', 'POST'])
+def editar_cliente(id):
+    cliente = None
+
+    for c in lista_clientes:
+        if c[0] == id:
+            cliente = c
+            break
+
+    if request.method == 'POST':
+        nome = request.form['nome']
+        telefone = request.form['telefone']
+        email = request.form['email']
+        razaosocial = request.form['razaosocial']
+        cnpj = request.form['cnpj']
+        cpf = request.form['cpf']
+        cidade = request.form['cidade']
+        estado = request.form['estado']
+
+        lista_clientes.remove(cliente)
+
+        cliente_atualizado = (id, nome, telefone, email, razaosocial, cnpj, cpf, cidade, estado)
+
+        lista_clientes.append(cliente_atualizado)
+
+        return redirect(url_for('clientes.lista_clientes_view'))
+
+    return render_template('cadastrar.html', cliente=cliente)
